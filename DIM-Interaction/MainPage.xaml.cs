@@ -1,5 +1,5 @@
-﻿using System;
-using Windows.UI.Input;
+﻿using Windows.Foundation;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
@@ -13,8 +13,7 @@ namespace DIM_Interaction
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private PointerPoint _anchorPoint;
-        private readonly TranslateTransform _transform = new TranslateTransform();
+        private readonly TransformGroup ct = new TransformGroup();
 
         public MainPage()
         {
@@ -27,7 +26,6 @@ namespace DIM_Interaction
             this.typeImg.Tapped += touchImg_PointerTap;
             this.typeImg.DoubleTapped += touchImg_PointerDoubleTapped;
             this.typeImg.Holding += touchImg_PointerHolding;
-            //this.typeImg.PointerMoved += touchImg_PointerMoved;
             this.typeImg.ManipulationDelta += touchImg_ManipulationDelta;
         }
 
@@ -48,23 +46,30 @@ namespace DIM_Interaction
 
         private void touchImg_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            Image s = sender as Image;
-            Canvas.SetLeft(s, Canvas.GetLeft(s) + e.Delta.Translation.X);
-            Canvas.SetTop(s, Canvas.GetTop(s) + e.Delta.Translation.Y);
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            Point center = this.TransformToVisual(source).TransformPoint(e.Position);
+
+            RotateTransform rotation = new RotateTransform();
+            rotation.CenterX = center.X;
+            rotation.CenterY = center.Y;
+            rotation.Angle = e.Delta.Rotation;
+            this.ct.Children.Add(rotation);
+
+            ScaleTransform scaling = new ScaleTransform();
+            scaling.CenterX = center.X;
+            scaling.CenterY = center.Y;
+            scaling.ScaleX = e.Delta.Scale;
+            scaling.ScaleY = e.Delta.Scale;
+            this.ct.Children.Add(scaling);
+
+            TranslateTransform translation = new TranslateTransform();
+            translation.X = e.Delta.Translation.X;
+            translation.Y = e.Delta.Translation.Y;
+            this.ct.Children.Add(translation);
+
+            source.RenderTransform = ct;
         }
-
-        //private void touchImg_PointerMoved(object sender, PointerRoutedEventArgs e)
-        //{
-        //    if (_anchorPoint != null)
-        //    {
-        //        PointerPoint _currentPoint = e.GetCurrentPoint((sender as Image));
-        //        _transform.X += _currentPoint.Position.X - _anchorPoint.Position.X;
-        //        _transform.Y += (_currentPoint.Position.Y - _anchorPoint.Position.Y);
-        //        this.typeImg.RenderTransform = _transform;
-        //        _anchorPoint = _currentPoint;
-        //    }
-        //}
-
+        
         private void touchImg_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             this.itemList.Items.Add(new ListViewItem { Content = new TextBlock { Text = $"{e.Pointer.PointerId} has entered" } });
@@ -82,15 +87,6 @@ namespace DIM_Interaction
 
         private void touchImg_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            if (_anchorPoint == null)
-            {
-                _anchorPoint = e.GetCurrentPoint(sender as Image);
-            }
-            else
-            {
-                _anchorPoint = null;
-                this.typeImg.RenderTransform = null;
-            }
             writeOnList(e.GetCurrentPoint(this.typeImg).Position.X, e.GetCurrentPoint(this.typeImg).Position.Y);
         }
 
