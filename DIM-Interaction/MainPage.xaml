@@ -10,8 +10,8 @@
 
     <Grid>
         <ListView x:Name="itemList" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Image x:Name="typeImg1" HorizontalAlignment="Left" VerticalAlignment="Top"  Source="/Assets/res.jpg" 
-               Margin="990,0,0,0" ManipulationMode="All" Height="280" Width="500"
+        <Image x:Name="typeImg1" Source="/Assets/res.jpg" ManipulationMode="All" HorizontalAlignment="Right" VerticalAlignment="Top"
+               Height="280" Width="500"
                PointerPressed="touchImg_PointerPressed"
                PointerReleased="touchImg_PointerReleased"
                PointerExited="touchImg_PointerExited"
@@ -25,8 +25,8 @@
                 </TransformGroup>
             </Image.RenderTransform>
         </Image>
-        <Image x:Name="typeImg2" HorizontalAlignment="Center" VerticalAlignment="Top"  Source="/Assets/res.jpg" 
-               Margin="0,280,0,0" ManipulationMode="All" Height="280" Width="500"
+        <Image x:Name="typeImg2" HorizontalAlignment="Center" VerticalAlignment="Center"  Source="/Assets/res.jpg" 
+               ManipulationMode="All" Height="280" Width="500"
                PointerPressed="touchImg_PointerPressed"
                PointerReleased="touchImg_PointerReleased"
                PointerExited="touchImg_PointerExited"
@@ -40,8 +40,8 @@
                 </TransformGroup>
             </Image.RenderTransform>
         </Image>
-        <Image x:Name="typeImg3" HorizontalAlignment="Left" VerticalAlignment="Top"  Source="/Assets/res.jpg" 
-               Margin="997,560,0,0" ManipulationMode="All" Height="280" Width="500"
+        <Image x:Name="typeImg3" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Source="/Assets/res.jpg" 
+               ManipulationMode="All" Height="280" Width="500"
                PointerPressed="touchImg_PointerPressed"
                PointerReleased="touchImg_PointerReleased"
                PointerExited="touchImg_PointerExited"
