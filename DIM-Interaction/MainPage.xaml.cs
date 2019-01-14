@@ -1,4 +1,6 @@
-﻿using Windows.Foundation;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -13,87 +15,89 @@ namespace DIM_Interaction
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private readonly TransformGroup ct = new TransformGroup();
-
         public MainPage()
         {
             this.InitializeComponent();
-
-            this.typeImg.PointerPressed += touchImg_PointerPressed;
-            this.typeImg.PointerReleased += touchImg_PointerReleased;
-            this.typeImg.PointerExited += touchImg_PointerExited;
-            this.typeImg.PointerEntered += touchImg_PointerEntered;
-            this.typeImg.Tapped += touchImg_PointerTap;
-            this.typeImg.DoubleTapped += touchImg_PointerDoubleTapped;
-            this.typeImg.Holding += touchImg_PointerHolding;
-            this.typeImg.ManipulationDelta += touchImg_ManipulationDelta;
         }
 
         private void touchImg_PointerHolding(object sender, HoldingRoutedEventArgs e)
         {
-            this.itemList.Items.Clear();
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            IEnumerable<object> it = this.itemList.Items.Where(x => ((ListViewItem)x).Tag.Equals(source.Name));
+            foreach (object item in it)
+            {
+                this.itemList.Items.Remove(item);
+            }
         }
 
         private void touchImg_PointerDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            this.typeImg.Opacity = 1;
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            source.Opacity = 1;
         }
 
         private void touchImg_PointerTap(object sender, TappedRoutedEventArgs e)
         {
-            writeOnList(e.GetPosition(this.typeImg).X, e.GetPosition(this.typeImg).Y);
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            Point pSorce = e.GetPosition(source);
+            writeOnList(pSorce.X, pSorce.Y, source);
         }
 
         private void touchImg_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
             FrameworkElement source = (FrameworkElement)e.OriginalSource;
             Point center = this.TransformToVisual(source).TransformPoint(e.Position);
+            TransformGroup ct = source.RenderTransform as TransformGroup;
 
             RotateTransform rotation = new RotateTransform();
             rotation.CenterX = center.X;
             rotation.CenterY = center.Y;
             rotation.Angle = e.Delta.Rotation;
-            this.ct.Children.Add(rotation);
+            ct.Children.Add(rotation);
 
             ScaleTransform scaling = new ScaleTransform();
             scaling.CenterX = center.X;
             scaling.CenterY = center.Y;
             scaling.ScaleX = e.Delta.Scale;
             scaling.ScaleY = e.Delta.Scale;
-            this.ct.Children.Add(scaling);
+            ct.Children.Add(scaling);
 
             TranslateTransform translation = new TranslateTransform();
             translation.X = e.Delta.Translation.X;
             translation.Y = e.Delta.Translation.Y;
-            this.ct.Children.Add(translation);
-
-            source.RenderTransform = ct;
+            ct.Children.Add(translation);
         }
         
         private void touchImg_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            this.itemList.Items.Add(new ListViewItem { Content = new TextBlock { Text = $"{e.Pointer.PointerId} has entered" } });
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            this.itemList.Items.Add(new ListViewItem { Tag = source.Name, Content = new TextBlock { Text = $"{source.Name}: {e.Pointer.PointerId} has entered" } });
         }
 
         private void touchImg_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            this.itemList.Items.Add(new ListViewItem { Content = new TextBlock { Text = $"{e.Pointer.PointerId} has exit" } });
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            if (string.IsNullOrWhiteSpace(source.Name)) return;
+            this.itemList.Items.Add(new ListViewItem { Tag = source.Name, Content = new TextBlock { Text = $"{source.Name}: {e.Pointer.PointerId} has exit" } });
         }
 
         private void touchImg_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            this.itemList.Items.Add(new ListViewItem { Content = new TextBlock { Text = $"{e.Pointer.PointerId} has released" } });
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            this.itemList.Items.Add(new ListViewItem { Tag = source.Name, Content = new TextBlock { Text = $"{source.Name}: {e.Pointer.PointerId} has released" } });
         }
 
         private void touchImg_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            writeOnList(e.GetCurrentPoint(this.typeImg).Position.X, e.GetCurrentPoint(this.typeImg).Position.Y);
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            Point pSorce = e.GetCurrentPoint(source).Position;
+            writeOnList(pSorce.X, pSorce.Y, source);
         }
 
-        private void writeOnList(double x, double y)
+        private void writeOnList(double x, double y, FrameworkElement source)
         {
-            this.itemList.Items.Add(new ListViewItem { Content = new TextBlock { Text = $"Current point X = {x}, Y = {y}" } });
-            this.typeImg.Opacity -= 0.1;
+            this.itemList.Items.Add(new ListViewItem { Tag = source.Name, Content = new TextBlock { Text = $"{source.Name}: Current point X = {x}, Y = {y}" } });
+            source.Opacity -= 0.1;
         }
     }
 }
