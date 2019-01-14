@@ -9,6 +9,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <ListView x:Name="itemList" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Image x:Name="typeImg" HorizontalAlignment="Left" VerticalAlignment="Center"  Source="/Assets/res.jpg" Width="970" Margin="500,0,0,0" ManipulationMode="All"/>
 
     </Grid>
 </Page>
