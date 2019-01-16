@@ -34,6 +34,7 @@ namespace DIM_Interaction.Views
         public NewPuzzle()
         {
             this.InitializeComponent();
+            this.puzzle_ListView.ItemsSource = PuzzleObservableList.Instance;
         }
 
 
@@ -69,8 +70,7 @@ namespace DIM_Interaction.Views
                 }
             }
         }
-
-
+        
         private void CreatePuzzleGridLines(int puzzlesize)
         {
             if (puzzleGrid.Children.Any())
@@ -122,14 +122,14 @@ namespace DIM_Interaction.Views
             return line;
         }
 
-        private async void BtCreateCustomPuzzle_ClickAsync(object sender, RoutedEventArgs e)
+        private async void btCheckImage_Click(object sender, RoutedEventArgs e)
         {
             bool result = false;
             int i3 = 0;
             images.ForEach(async image => await SaveBitmapToFileAsync(image, puzzleGrid.Tag as string, ++i3, 3));
-            if (PuzzleObservableList.Instance.Any(puzzle => puzzle.Name == puzzleGrid.Tag as string))
+            if (PuzzleObservableList.Instance.Any(puzzle => puzzle.Name.Equals(puzzleGrid.Tag)))
                 while (result == false) { result = await CheckIfItemExistsAsync(sampleImage.Tag as StorageFolder, "3"); }
-            PuzzleObservableList.Instance.First(puzzle => puzzle.Name.Equals(puzzleGrid.Tag)).IsPuzzleAvailable = result;
+            PuzzleObservableList.Instance.FirstOrDefault(puzzle => puzzle.Name.Equals(puzzleGrid.Tag)).IsPuzzleAvailable = result;
 
             ContentDialog dg = new ContentDialog()
             {
@@ -151,7 +151,7 @@ namespace DIM_Interaction.Views
             StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("SlidingPuzzles", CreationCollisionOption.OpenIfExists);
             StorageFolder pictureFolder2 = await pictureFolder.CreateFolderAsync(imagename, CreationCollisionOption.OpenIfExists);
             StorageFolder pictureFolder3 = await pictureFolder2.CreateFolderAsync(size.ToString(), CreationCollisionOption.OpenIfExists);
-            StorageFile file = await pictureFolder3.CreateFileAsync($"id.ToString() {ImageTypes.Png}", CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await pictureFolder3.CreateFileAsync($"{id.ToString()} {ImageTypes.Png}", CreationCollisionOption.ReplaceExisting);
             using (Stream stream = await file.OpenStreamForWriteAsync())
             {
                 BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream.AsRandomAccessStream());
@@ -231,6 +231,11 @@ namespace DIM_Interaction.Views
         {
             var item = await Folder.TryGetItemAsync(itemName);
             return item != null;
+        }
+
+        private void Image_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+
         }
     }
 }

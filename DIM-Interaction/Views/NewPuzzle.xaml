@@ -8,12 +8,27 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Button x:Name="backBtn" Content="Back" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="180" Height="50"
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="980" Width="1500" Margin="0,0,0,0">
+        <Button x:Name="backBtn" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Height="50"
                 Click="BackBtn_Click"/>
         <Image Stretch="Fill" Name="sampleImage" Source="/Assets/Square150x150Logo.png" 
                HorizontalAlignment="Left" VerticalAlignment="Top" Width="500" Height="500" Margin="500,250,0,0"/>
         <Canvas Name="puzzleGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Width="500" Height="500" Margin="500,250,0,0"/>
-        <Button Name="btPickImage" Content="Select image" Click="btPickImage_Click" FontSize="20" VerticalAlignment="Top" Margin="684,755,0,0" HorizontalAlignment="Left"/>
+        <Button Name="btPickImage" Content="Select image" Click="btPickImage_Click" FontSize="20" VerticalAlignment="Top" Margin="500,755,0,0" HorizontalAlignment="Left"/>
+        <Button Name="btCheckImage" Content="Check image" Click="btCheckImage_Click" FontSize="20" VerticalAlignment="Top" Margin="866,755,0,0" HorizontalAlignment="Left"/>
+        <ListView x:Name="puzzle_ListView" HorizontalAlignment="Left" Height="905" Margin="0,65,0,0" VerticalAlignment="Top" Width="322">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="150"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding Name}" FontSize="20" Foreground="White" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWholeWords" FontWeight="Bold"/>
+                        <Image Source="{Binding Image}"  Stretch="Fill" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Tag="{Binding Folder}" PointerPressed="Image_PointerPressed"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Page>

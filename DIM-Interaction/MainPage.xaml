@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Margin="10,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <ListView x:Name="itemList" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <Image x:Name="typeImg1" Source="/Assets/res.jpg" ManipulationMode="All" HorizontalAlignment="Right" VerticalAlignment="Top"
                Height="280" Width="500"
