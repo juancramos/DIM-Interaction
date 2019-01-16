@@ -99,5 +99,10 @@ namespace DIM_Interaction
             this.itemList.Items.Add(new ListViewItem { Tag = source.Name, Content = new TextBlock { Text = $"{source.Name}: Current point X = {x}, Y = {y}" } });
             source.Opacity -= 0.1;
         }
+
+        private void NewPuzzleBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(Views.NewPuzzle));
+        }
     }
 }

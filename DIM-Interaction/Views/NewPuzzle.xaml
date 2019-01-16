@@ -1,0 +1,19 @@
+﻿<Page
+    x:Class="DIM_Interaction.Views.NewPuzzle"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DIM_Interaction.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Button x:Name="backBtn" Content="Back" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="180" Height="50"
+                Click="BackBtn_Click"/>
+        <Image Stretch="Fill" Name="sampleImage" Source="/Assets/Square150x150Logo.png" 
+               HorizontalAlignment="Left" VerticalAlignment="Top" Width="500" Height="500" Margin="500,250,0,0"/>
+        <Canvas Name="puzzleGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Width="500" Height="500" Margin="500,250,0,0"/>
+        <Button Name="btPickImage" Content="Select image" Click="btPickImage_Click" FontSize="20" VerticalAlignment="Top" Margin="684,755,0,0" HorizontalAlignment="Left"/>
+    </Grid>
+</Page>
