@@ -1,17 +1,6 @@
 ﻿using DIM_Interaction.Entities;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -24,7 +13,6 @@ namespace DIM_Interaction.Views
     public sealed partial class PlayPuzzleView : Page
     {
         private PlayPuzzle Puzzle { get; set; }
-        private Grid gPuzzleGrid { get; set; }
 
         public PlayPuzzleView()
         {
@@ -35,11 +23,9 @@ namespace DIM_Interaction.Views
         {
             Puzzle = e.Parameter as PlayPuzzle;
             await Puzzle.GeneratePuzzle();
-
-            gPuzzleGrid = Puzzle.PuzzleBox;
-            gPuzzleGrid.Name = "GeneratedPuzzleGrid";
-            Grid.SetColumn(gPuzzleGrid, 0);
-            PuzzleGrid.Children.Add(gPuzzleGrid);
+            
+            Grid.SetColumn(Puzzle.PuzzleBox, 0);
+            PuzzleGrid.Children.Add(Puzzle.PuzzleBox);
 
             base.OnNavigatedTo(e);
         }

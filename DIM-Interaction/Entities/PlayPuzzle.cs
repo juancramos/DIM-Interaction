@@ -95,9 +95,9 @@ namespace DIM_Interaction.Entities
         private void LoadPuzzleBoxHolder()
         {
             List<int> listNumbers = new List<int>();
+            Random rnd = new Random();
             listNumbers.AddRange(Enumerable.Range(1, TotalPuzzleSize));
-            listNumbers.OrderBy(item => new Random().Next()).ToList();
-            foreach (int item in listNumbers)
+            foreach (int item in listNumbers.OrderBy(item => rnd.Next()))
             {
                 PuzzlePieces.Add(GeneratePuzzlePiece(item));
             }
@@ -128,13 +128,18 @@ namespace DIM_Interaction.Entities
             PuzzlePiece.HorizontalAlignment = HorizontalAlignment.Stretch;
             PuzzlePiece.VerticalAlignment = VerticalAlignment.Stretch;
             PuzzlePiece.Tag = PuzzlePieceCount;
+            PuzzlePiece.BorderThickness = new Thickness(2);
             ImageBrush brush = new ImageBrush();
             brush.ImageSource = PuzzleImages[PuzzlePieceCount];
             PuzzlePiece.Background = brush;
-            PuzzlePiece.ManipulationDelta += (sender, e) => touchImg_ManipulationDelta(sender, e);
+            PuzzlePiece.ManipulationMode = ManipulationModes.All;
+            PuzzlePiece.RenderTransform = new TransformGroup();
+            PuzzlePiece.ManipulationDelta += touchImg_ManipulationDelta;
 
             return PuzzlePiece;
         }
+
+
 
         private void touchImg_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
@@ -142,9 +147,11 @@ namespace DIM_Interaction.Entities
             Point center = source.TransformToVisual(source).TransformPoint(e.Position);
             TransformGroup ct = source.RenderTransform as TransformGroup;
 
+            Grid parent = VisualTreeHelper.GetParent(source) as Grid;
+
             TranslateTransform translation = new TranslateTransform();
-            translation.X = e.Delta.Translation.X;
-            translation.Y = e.Delta.Translation.Y;
+            translation.X = e.Delta.Translation.X - parent.CenterPoint.X;
+            translation.Y = e.Delta.Translation.Y - parent.CenterPoint.Y;
             ct.Children.Add(translation);
         }
     }

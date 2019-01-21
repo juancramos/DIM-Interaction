@@ -69,7 +69,7 @@ namespace DIM_Interaction.Views
                 }
             }
         }
-        
+
         private void CreatePuzzleGridLines(int puzzlesize)
         {
             if (puzzleGrid.Children.Any())
@@ -143,7 +143,7 @@ namespace DIM_Interaction.Views
         {
             this.Frame.Navigate(typeof(MainPage));
         }
-        
+
         public static async Task SaveBitmapToFileAsync(WriteableBitmap image, string imagename, int id, int size)
         {
             StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
@@ -265,6 +265,7 @@ namespace DIM_Interaction.Views
 
         private async Task LoadExistingPuzzlesAsync()
         {
+            if (PuzzleObservableList.Instance.Any()) PuzzleObservableList.Instance.Clear();
             StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
             IReadOnlyList<StorageFolder> folderList = await pictureFolder.GetFoldersAsync();
             foreach (StorageFolder item in folderList)
