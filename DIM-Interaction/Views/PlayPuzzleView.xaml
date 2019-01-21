@@ -1,0 +1,22 @@
+﻿<Page
+    x:Class="DIM_Interaction.Views.PlayPuzzleView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DIM_Interaction.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Button x:Name="backBtn" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="180" Height="50"
+                Click="BackBtn_Click"/>
+        <Grid Name="PuzzleGrid" Margin="0,65,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500*"/>
+                <ColumnDefinition Width="100*"/>
+            </Grid.ColumnDefinitions>
+            <ListView Grid.Column="1" Name="lsMoves"/>
+        </Grid>
+    </Grid>
+</Page>

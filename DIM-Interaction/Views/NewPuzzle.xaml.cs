@@ -3,11 +3,12 @@ using DIM_Interaction.Data;
 using DIM_Interaction.Entities;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -34,9 +35,7 @@ namespace DIM_Interaction.Views
         public NewPuzzle()
         {
             this.InitializeComponent();
-            this.puzzle_ListView.ItemsSource = PuzzleObservableList.Instance;
         }
-
 
         private async void btPickImage_Click(object sender, RoutedEventArgs e)
         {
@@ -57,7 +56,7 @@ namespace DIM_Interaction.Views
                     images = await CutImageInPiecesAsync(fileStream, 3);
                     image.SetSource(fileStream);
                     await SaveIRandomAccessStreamToFileAsync(fileStream, imagename);
-                    StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("SlidingPuzzles", CreationCollisionOption.OpenIfExists);
+                    StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
                     StorageFolder imageFolder = await pictureFolder.GetFolderAsync(imagename);
                     if (!PuzzleObservableList.Instance.Any(puzzle => puzzle.Name.Equals(imagename)))
                     {
@@ -144,14 +143,13 @@ namespace DIM_Interaction.Views
         {
             this.Frame.Navigate(typeof(MainPage));
         }
-
-
+        
         public static async Task SaveBitmapToFileAsync(WriteableBitmap image, string imagename, int id, int size)
         {
-            StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("SlidingPuzzles", CreationCollisionOption.OpenIfExists);
+            StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
             StorageFolder pictureFolder2 = await pictureFolder.CreateFolderAsync(imagename, CreationCollisionOption.OpenIfExists);
             StorageFolder pictureFolder3 = await pictureFolder2.CreateFolderAsync(size.ToString(), CreationCollisionOption.OpenIfExists);
-            StorageFile file = await pictureFolder3.CreateFileAsync($"{id.ToString()} {ImageTypes.Png}", CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await pictureFolder3.CreateFileAsync($"{id.ToString()}{ImageTypes.Png}", CreationCollisionOption.ReplaceExisting);
             using (Stream stream = await file.OpenStreamForWriteAsync())
             {
                 BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream.AsRandomAccessStream());
@@ -213,9 +211,9 @@ namespace DIM_Interaction.Views
             await enc.FlushAsync();
             WriteableBitmap wb = new WriteableBitmap(500, 500);
             await wb.SetSourceAsync(ras);
-            StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("SlidingPuzzles", CreationCollisionOption.OpenIfExists);
+            StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
             StorageFolder pictureFolder2 = await pictureFolder.CreateFolderAsync(imagename, CreationCollisionOption.OpenIfExists);
-            StorageFile file = await pictureFolder2.CreateFileAsync(imagename + ".png", CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await pictureFolder2.CreateFileAsync($"{imagename}{ImageTypes.Png}", CreationCollisionOption.ReplaceExisting);
             using (Stream stream = await file.OpenStreamForWriteAsync())
             {
                 BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream.AsRandomAccessStream());
@@ -233,9 +231,70 @@ namespace DIM_Interaction.Views
             return item != null;
         }
 
-        private void Image_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void itemList_PointerPressed(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            Grid source = (Grid)sender;
+            StorageFolder Folder = (StorageFolder)source.Tag;
+            if (await CheckIfItemExistsAsync(Folder, "3"))
+            {
+                this.Frame.Navigate(typeof(PlayPuzzleView), new PlayPuzzle(3, Folder, Folder.DisplayName));
+            }
+            else
+            {
+                ContentDialog dg = new ContentDialog()
+                {
+                    Title = "Error!",
+                    Content = "The puzzle folder does not contain the desired puzzlesize. The application will now shutdown.",
+                    CloseButtonText = "Ok",
+                    RequestedTheme = ElementTheme.Dark
+                };
+                await dg.ShowAsync();
+                Application.Current.Exit();
+            }
+        }
 
+        private void Puzzle_ListView_DataContextChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            this.ValidatePlaceholder();
+        }
+
+        private void ValidatePlaceholder()
+        {
+            this.placeholder_TextBlock.Visibility = PuzzleObservableList.Instance.Any() ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private async Task LoadExistingPuzzlesAsync()
+        {
+            StorageFolder pictureFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(Package.Current.DisplayName, CreationCollisionOption.OpenIfExists);
+            IReadOnlyList<StorageFolder> folderList = await pictureFolder.GetFoldersAsync();
+            foreach (StorageFolder item in folderList)
+            {
+                if (await CheckIfItemExistsAsync(item, $"{item.DisplayName}{ImageTypes.Png}") == false)
+                {
+                    continue;
+                }
+                BitmapImage image = await GetImageFromStorageFolderAsync(item);
+                PuzzleObservableList.Instance.Add(new Puzzle(item.DisplayName, item, image, await CheckIfItemExistsAsync(item, "3")));
+            }
+        }
+
+        private async Task<BitmapImage> GetImageFromStorageFolderAsync(StorageFolder Folder)
+        {
+            BitmapImage image = new BitmapImage();
+            StorageFile img = await Folder.GetFileAsync($"{Folder.DisplayName}{ImageTypes.Png}");
+            using (IRandomAccessStream fileStream = await img.OpenAsync(FileAccessMode.Read))
+            {
+                image.SetSource(fileStream);
+            }
+            return image;
+        }
+
+        private async void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            await this.LoadExistingPuzzlesAsync();
+            this.puzzle_ListView.ItemsSource = PuzzleObservableList.Instance;
+            ((INotifyCollectionChanged)PuzzleObservableList.Instance).CollectionChanged += Puzzle_ListView_DataContextChanged;
+            this.ValidatePlaceholder();
         }
     }
 }

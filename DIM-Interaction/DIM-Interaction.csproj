@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Cross\ImageTypes.cs" />
     <Compile Include="Data\PuzzleObservableList.cs" />
+    <Compile Include="Entities\PlayPuzzle.cs" />
     <Compile Include="Entities\Puzzle.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -128,6 +129,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\NewPuzzle.xaml.cs">
       <DependentUpon>NewPuzzle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlayPuzzleView.xaml.cs">
+      <DependentUpon>PlayPuzzleView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +163,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\NewPuzzle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlayPuzzleView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
