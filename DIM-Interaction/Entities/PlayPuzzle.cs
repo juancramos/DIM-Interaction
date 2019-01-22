@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using DIM_Interaction.Cross;
 using System;
-using Windows.Storage;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.Storage.Streams;
-using DIM_Interaction.Cross;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Input;
-using Windows.Foundation;
-using Windows.UI;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.UI;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace DIM_Interaction.Entities
 {
@@ -21,10 +21,11 @@ namespace DIM_Interaction.Entities
         public int TotalPuzzleSize { get; private set; }
         public string PuzzleName { get; private set; }
         public StorageFolder Folder { get; private set; }
+        public Image PuzzleImage { get; private set; }
+        public Grid PuzzleBox { get; private set; }
         private List<BitmapImage> PuzzleImages;
         private Grid WhitePuzzlePiece;
         private List<Grid> PuzzlePieces;
-        public Grid PuzzleBox { get; private set; }
 
         public PlayPuzzle(int pPuzzleSize, StorageFolder pFolder, string pPuzzleName)
         {
@@ -36,11 +37,13 @@ namespace DIM_Interaction.Entities
             WhitePuzzlePiece = new Grid();
             PuzzlePieces = new List<Grid>();
             PuzzleBox = new Grid();
+            PuzzleImage = new Image();
         }
 
         public async Task GeneratePuzzle()
         {
             await GetAllImages();
+            await SetPuzzleImage();
             CreatePuzzleBoxHolder();
             LoadPuzzleBoxHolder();
         }
@@ -134,25 +137,72 @@ namespace DIM_Interaction.Entities
             PuzzlePiece.Background = brush;
             PuzzlePiece.ManipulationMode = ManipulationModes.All;
             PuzzlePiece.RenderTransform = new TransformGroup();
-            PuzzlePiece.ManipulationDelta += touchImg_ManipulationDelta;
+            PuzzlePiece.PointerPressed += touchImg_PointerPressed;
 
             return PuzzlePiece;
         }
 
+        public async Task SetPuzzleImage()
+        {
+            try
+            {
+                StorageFile img = await Folder.GetFileAsync($"{PuzzleName}{ImageTypes.Png}");
+                BitmapImage image = new BitmapImage();
+                using (IRandomAccessStream fileStream = await img.OpenAsync(FileAccessMode.Read))
+                {
+                    image.SetSource(fileStream);
+                }
+                PuzzleImage.Source = image;
+                PuzzleImage.ManipulationMode = ManipulationModes.All;
+                PuzzleImage.RenderTransform = new TransformGroup();
+                PuzzleImage.ManipulationDelta += puzzleImage_ManipulationDelta;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-
-        private void touchImg_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void puzzleImage_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
             FrameworkElement source = (FrameworkElement)e.OriginalSource;
             Point center = source.TransformToVisual(source).TransformPoint(e.Position);
             TransformGroup ct = source.RenderTransform as TransformGroup;
 
-            Grid parent = VisualTreeHelper.GetParent(source) as Grid;
+            ScaleTransform scaling = new ScaleTransform();
+            scaling.CenterX = center.X;
+            scaling.CenterY = center.Y;
+            scaling.ScaleX = e.Delta.Scale;
+            scaling.ScaleY = e.Delta.Scale;
+            ct.Children.Add(scaling);
 
             TranslateTransform translation = new TranslateTransform();
-            translation.X = e.Delta.Translation.X - parent.CenterPoint.X;
-            translation.Y = e.Delta.Translation.Y - parent.CenterPoint.Y;
+            translation.X = e.Delta.Translation.X;
+            translation.Y = e.Delta.Translation.Y;
             ct.Children.Add(translation);
+        }
+
+        private void touchImg_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            FrameworkElement source = (FrameworkElement)e.OriginalSource;
+            int puzzlePieceRow = Grid.GetRow(source);
+            int puzzlePieceColumn = Grid.GetColumn(source);
+            int whitePuzzlePieceRow = Grid.GetRow(WhitePuzzlePiece);
+            int whitePuzzlePieceColumn = Grid.GetColumn(WhitePuzzlePiece);
+
+            if (puzzlePieceRow == whitePuzzlePieceRow || puzzlePieceColumn == whitePuzzlePieceColumn)
+            {
+                int PPR = puzzlePieceRow - whitePuzzlePieceRow;
+                int PPC = puzzlePieceColumn - whitePuzzlePieceColumn;
+                if (PPR >= -1 && PPR <= 1 && PPC >= -1 && PPC <= 1)
+                {
+                    Grid.SetRow(source, whitePuzzlePieceRow);
+                    Grid.SetColumn(source, whitePuzzlePieceColumn);
+
+                    Grid.SetRow(WhitePuzzlePiece, puzzlePieceRow);
+                    Grid.SetColumn(WhitePuzzlePiece, puzzlePieceColumn);
+                }
+            }
         }
     }
 }

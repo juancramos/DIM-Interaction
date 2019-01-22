@@ -13,10 +13,9 @@
                 Click="BackBtn_Click"/>
         <Grid Name="PuzzleGrid" Margin="0,65,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="500*"/>
-                <ColumnDefinition Width="100*"/>
+                <ColumnDefinition Width="400*"/>
+                <ColumnDefinition Width="200*"/>
             </Grid.ColumnDefinitions>
-            <ListView Grid.Column="1" Name="lsMoves"/>
         </Grid>
     </Grid>
 </Page>

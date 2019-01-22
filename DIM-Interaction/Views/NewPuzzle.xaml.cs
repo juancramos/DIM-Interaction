@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
@@ -43,9 +44,11 @@ namespace DIM_Interaction.Views
             FileOpenPicker picker = new FileOpenPicker();
             picker.ViewMode = PickerViewMode.Thumbnail;
             picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
-            picker.FileTypeFilter.Add(ImageTypes.Jpeg);
-            picker.FileTypeFilter.Add(ImageTypes.Jpg);
-            picker.FileTypeFilter.Add(ImageTypes.Png);
+            foreach (FieldInfo info in typeof(ImageTypes).GetFields().Where(x => x.IsStatic && x.IsLiteral))
+            {
+                string a = info.GetValue(null) as string;
+                picker.FileTypeFilter.Add(a);
+            }
             StorageFile imagefile = await picker.PickSingleFileAsync();
             if (imagefile != null)
             {
@@ -235,7 +238,7 @@ namespace DIM_Interaction.Views
         {
             Grid source = (Grid)sender;
             StorageFolder Folder = (StorageFolder)source.Tag;
-            if (await CheckIfItemExistsAsync(Folder, "3"))
+            if (source.IsTapEnabled && await CheckIfItemExistsAsync(Folder, "3"))
             {
                 this.Frame.Navigate(typeof(PlayPuzzleView), new PlayPuzzle(3, Folder, Folder.DisplayName));
             }
@@ -244,12 +247,10 @@ namespace DIM_Interaction.Views
                 ContentDialog dg = new ContentDialog()
                 {
                     Title = "Error!",
-                    Content = "The puzzle folder does not contain the desired puzzlesize. The application will now shutdown.",
-                    CloseButtonText = "Ok",
-                    RequestedTheme = ElementTheme.Dark
+                    Content = "Check the image is saved. The puzzle folder does not contain the desired puzzlesize.",
+                    CloseButtonText = "Ok"
                 };
                 await dg.ShowAsync();
-                Application.Current.Exit();
             }
         }
 
@@ -260,7 +261,7 @@ namespace DIM_Interaction.Views
 
         private void ValidatePlaceholder()
         {
-            this.placeholder_TextBlock.Visibility = PuzzleObservableList.Instance.Any() ? Visibility.Collapsed : Visibility.Visible;
+            this.placeholder_TextBlock.Visibility = PuzzleObservableList.Instance.Any(x => x.IsPuzzleAvailable) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private async Task LoadExistingPuzzlesAsync()

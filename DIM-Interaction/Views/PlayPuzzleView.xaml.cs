@@ -25,14 +25,16 @@ namespace DIM_Interaction.Views
             await Puzzle.GeneratePuzzle();
             
             Grid.SetColumn(Puzzle.PuzzleBox, 0);
+            Grid.SetColumn(Puzzle.PuzzleImage, 1);
             PuzzleGrid.Children.Add(Puzzle.PuzzleBox);
+            PuzzleGrid.Children.Add(Puzzle.PuzzleImage);
 
             base.OnNavigatedTo(e);
         }
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainPage));
+            this.Frame.Navigate(typeof(NewPuzzle));
         }
     }
 }

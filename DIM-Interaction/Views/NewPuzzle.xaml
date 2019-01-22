@@ -23,7 +23,7 @@
             </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid PointerPressed="itemList_PointerPressed" Tag="{Binding Folder}">
+                    <Grid PointerPressed="itemList_PointerPressed" Tag="{Binding Folder}" Visibility="{Binding IsPuzzleAvailable}" IsTapEnabled="{Binding IsPuzzleAvailable}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
                             <RowDefinition Height="150"/>
